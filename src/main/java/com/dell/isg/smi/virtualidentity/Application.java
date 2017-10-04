@@ -7,6 +7,7 @@ import static springfox.documentation.builders.PathSelectors.regex;
 
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
@@ -22,7 +23,6 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -35,67 +35,70 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableOAuth2Sso
 @EnableDiscoveryClient
-@ComponentScan({ "com.dell.isg.smi.virtualidentity" })
+@ComponentScan({ "com.dell.isg.smi" })
 @EnableJpaRepositories("com.dell.isg.smi.virtualidentity.repository")
 public class Application extends WebMvcConfigurerAdapter {
 
-    /**
-     * The main method.
-     *
-     * @param args the arguments
-     */
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
+	/**
+	 * The main method.
+	 *
+	 * @param args
+	 *            the arguments
+	 */
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
+	}
 
+	@Autowired
+	private BuildInfo buildInfo;
 
-    /**
-     * Locale resolver.
-     *
-     * @return the locale resolver
-     */
-    @Bean
-    public LocaleResolver localeResolver() {
-        SessionLocaleResolver slr = new SessionLocaleResolver();
-        slr.setDefaultLocale(Locale.US);
-        return slr;
-    }
+	/**
+	 * Locale resolver.
+	 *
+	 * @return the locale resolver
+	 */
+	@Bean
+	public LocaleResolver localeResolver() {
+		SessionLocaleResolver slr = new SessionLocaleResolver();
+		slr.setDefaultLocale(Locale.US);
+		return slr;
+	}
 
+	/**
+	 * Locale change interceptor.
+	 *
+	 * @return the locale change interceptor
+	 */
+	@Bean
+	public LocaleChangeInterceptor localeChangeInterceptor() {
+		LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
+		lci.setParamName("lang");
+		return lci;
+	}
 
-    /**
-     * Locale change interceptor.
-     *
-     * @return the locale change interceptor
-     */
-    @Bean
-    public LocaleChangeInterceptor localeChangeInterceptor() {
-        LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
-        lci.setParamName("lang");
-        return lci;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter#
+	 * addInterceptors(org.springframework.web.servlet.config.annotation.
+	 * InterceptorRegistry)
+	 */
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(localeChangeInterceptor());
+	}
 
+	/**
+	 * Api.
+	 *
+	 * @return the docket
+	 */
+	@Bean
+	public Docket api() {
+		return new Docket(DocumentationType.SWAGGER_2).groupName("virtualidentity").apiInfo(
+				new ApiInfoBuilder().title("SMI Microservice - Virtual Identity").version(buildInfo.toString()).build())
+				.select().paths(regex("/api/1.0/.*")).build();
+	}
 
-    /* (non-Javadoc)
-     * @see org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter#addInterceptors(org.springframework.web.servlet.config.annotation.InterceptorRegistry)
-     */
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(localeChangeInterceptor());
-    }
-
-
-    /**
-     * Api.
-     *
-     * @return the docket
-     */
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2).groupName("virtualidentity").apiInfo(apiInfo()).select().paths(regex("/api/1.0/.*")).build();
-    }
-
-
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder().title("Virtual Identity Microservice").description("API for the Virtual Identity Microservice.").version("1.0").build();
-    }
 }
