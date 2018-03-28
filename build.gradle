@@ -58,8 +58,8 @@ dependencyManagement {
 
 sonarqube {
     properties {
-        property "sonar.projectName", "rackhd :: smi-service-virtualidentity"
-        property "sonar.projectKey", "${group}:service-virtualidentity"
+        property "sonar.projectName", "rackhd::smi-service-virtualidentity"
+        property "sonar.projectKey", "${group}::service-virtualidentity"
     }
 }
 
