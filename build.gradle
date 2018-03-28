@@ -17,6 +17,7 @@ def _os = 'LINUX'
 def _release = 1
 def _sourcePaths=[]
 
+
 sourceCompatibility = 1.8
 version = "${version}"
 dockerTag = "${dockerTag}"
