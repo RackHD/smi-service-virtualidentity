@@ -1,6 +1,6 @@
 ### smi-service-virtualidentity
 
-!!!!A virtual identity (MAC,IQN,WWN) generation and reservation system.
+A virtual identity (MAC,IQN,WWN) generation and reservation system.
 
 A docker container for this service is avalable at:  https://hub.docker.com/r/rackhd/virtualidentity/
 
